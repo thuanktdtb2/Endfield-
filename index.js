@@ -81,7 +81,8 @@ client.on("messageCreate", async (message) => {
   const displayName = name.charAt(0).toUpperCase() + name.slice(1);
   const embed = new EmbedBuilder()
     .setColor(0xE57373)
-    .setTitle(`✦ ${displayName}`)
+    .setTitle(`__✦ ${displayName}__`)
+    .setThumbnail(`attachment://${fileName}`)
     .setImage(`attachment://${fileName}`)
     .setFooter({ text: "Endfield Characters" });
 
