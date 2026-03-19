@@ -44,8 +44,8 @@ const client = new Client({
 
 client.once("clientReady", () => {
   const chars = getAvailableCharacters();
-  console.log(`âœ… Bot Ä‘Ă£ Ä‘Äƒng nháº­p: ${client.user.tag}`);
-  console.log(`đŸ­ NhĂ¢n váº­t: ${chars.length > 0 ? chars.join(", ") : "(chÆ°a cĂ³)"}`);
+  console.log(`✅ Bot đã đăng nhập: ${client.user.tag}`);
+  console.log(`🎭 Nhân vật: ${chars.length > 0 ? chars.join(", ") : "(chưa có)"}`);
 });
 
 client.on("messageCreate", async (message) => {
@@ -59,11 +59,11 @@ client.on("messageCreate", async (message) => {
   if (name === "list") {
     const available = getAvailableCharacters();
     const list = available.length > 0
-      ? available.map(c => `â€¢ \`!${c}\``).join("\n")
-      : "_(chÆ°a cĂ³ nhĂ¢n váº­t nĂ o)_";
+      ? available.map(c => `• \`!${c}\``).join("\n")
+      : "_(chưa có nhân vật nào)_";
     const embed = new EmbedBuilder()
       .setColor(0xE57373)
-      .setTitle("Danh sĂ¡ch nhĂ¢n váº­t")
+      .setTitle("Danh sách nhân vật")
       .setDescription(list)
       .setFooter({ text: "Endfield Characters" });
     await message.reply({ embeds: [embed] });
@@ -81,7 +81,7 @@ client.on("messageCreate", async (message) => {
   const displayName = name.charAt(0).toUpperCase() + name.slice(1);
   const embed = new EmbedBuilder()
     .setColor(0xE57373)
-    .setTitle(`âœ¦ ${displayName}`)
+    .setTitle(`✦ ${displayName}`)
     .setImage(`attachment://${fileName}`)
     .setFooter({ text: "Endfield Characters" });
 
@@ -90,7 +90,7 @@ client.on("messageCreate", async (message) => {
 
 const token = process.env.DISCORD_BOT_TOKEN;
 if (!token) {
-  console.error("âŒ Thiáº¿u DISCORD_BOT_TOKEN!");
+  console.error("❌ Thiếu DISCORD_BOT_TOKEN!");
   process.exit(1);
 }
 
