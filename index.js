@@ -1,4 +1,4 @@
-import { Client, GatewayIntentBits, AttachmentBuilder } from "discord.js";
+import { Client, GatewayIntentBits, AttachmentBuilder, EmbedBuilder } from "discord.js";
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
@@ -26,7 +26,8 @@ function getCharacterImages(name) {
 function getAvailableCharacters() {
   if (!fs.existsSync(IMAGES_DIR)) return [];
   return fs.readdirSync(IMAGES_DIR, { withFileTypes: true })
-    .filter(e => e.isDirectory()).map(e => e.name);
+    .filter(e => e.isDirectory())
+    .map(e => e.name);
 }
 
 function pickRandom(arr) {
@@ -34,29 +35,56 @@ function pickRandom(arr) {
 }
 
 const client = new Client({
-  intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent],
+  intents: [
+    GatewayIntentBits.Guilds,
+    GatewayIntentBits.GuildMessages,
+    GatewayIntentBits.MessageContent,
+  ],
 });
 
 client.once("clientReady", () => {
   const chars = getAvailableCharacters();
-  console.log(`✅ Bot: ${client.user.tag}`);
-  console.log(`🎭 Nhân vật: ${chars.join(", ") || "(chưa có)"}`);
+  console.log(`✅ Bot đã đăng nhập: ${client.user.tag}`);
+  console.log(`🎭 Nhân vật: ${chars.length > 0 ? chars.join(", ") : "(chưa có)"}`);
 });
 
 client.on("messageCreate", async (message) => {
   if (message.author.bot) return;
   const content = message.content.trim();
   if (!content.startsWith("!")) return;
+
   const name = content.slice(1).trim().toLowerCase();
   if (!name) return;
+
   const images = getCharacterImages(name);
   if (images.length === 0) {
-    const list = getAvailableCharacters().map(c => `\`!${c}\``).join(", ") || "_(chưa có)_";
+    const available = getAvailableCharacters();
+    const list = available.length > 0
+      ? available.map(c => `\`!${c}\``).join(", ")
+      : "_(chưa có)_";
     await message.reply(`❌ Không tìm thấy **${name}**.\n📋 Có sẵn: ${list}`);
     return;
   }
-  await message.reply({ content: `🎴 **${name}**:`, files: [new AttachmentBuilder(pickRandom(images))] });
+
+  const chosen = pickRandom(images);
+  const ext = path.extname(chosen);
+  const fileName = `${name}${ext}`;
+  const attachment = new AttachmentBuilder(chosen, { name: fileName });
+
+  const displayName = name.charAt(0).toUpperCase() + name.slice(1);
+  const embed = new EmbedBuilder()
+    .setColor(0x5865F2)
+    .setAuthor({ name: displayName, iconURL: `attachment://${fileName}` })
+    .setImage(`attachment://${fileName}`)
+    .setFooter({ text: "Endfield Characters" });
+
+  await message.reply({ embeds: [embed], files: [attachment] });
 });
 
-if (!process.env.DISCORD_BOT_TOKEN) { console.error("❌ Thiếu DISCORD_BOT_TOKEN!"); process.exit(1); }
-client.login(process.env.DISCORD_BOT_TOKEN);
+const token = process.env.DISCORD_BOT_TOKEN;
+if (!token) {
+  console.error("❌ Thiếu DISCORD_BOT_TOKEN!");
+  process.exit(1);
+}
+
+client.login(token);
