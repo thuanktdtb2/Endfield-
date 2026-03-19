@@ -80,7 +80,7 @@ client.on("messageCreate", async (message) => {
 
   const displayName = name.charAt(0).toUpperCase() + name.slice(1);
   const embed = new EmbedBuilder()
-    .setColor(0xE57373)
+    .setColor(0xFF4040)
     .setTitle(`__✦ ${displayName}__`)
     .setThumbnail(`attachment://${fileName}`)
     .setImage(`attachment://${fileName}`)
