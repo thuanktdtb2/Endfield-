@@ -15,7 +15,12 @@ function getImages(dir) {
 }
 
 function getCharacterImages(name) {
-  return getImages(path.join(IMAGES_DIR, name.toLowerCase()));
+  if (!fs.existsSync(IMAGES_DIR)) return [];
+  const target = name.toLowerCase();
+  const entries = fs.readdirSync(IMAGES_DIR, { withFileTypes: true });
+  const match = entries.find(e => e.isDirectory() && e.name.toLowerCase() === target);
+  if (!match) return [];
+  return getImages(path.join(IMAGES_DIR, match.name));
 }
 
 function getAvailableCharacters() {
