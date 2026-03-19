@@ -56,15 +56,22 @@ client.on("messageCreate", async (message) => {
   const name = content.slice(1).trim().toLowerCase();
   if (!name) return;
 
-  const images = getCharacterImages(name);
-  if (images.length === 0) {
+  if (name === "list") {
     const available = getAvailableCharacters();
     const list = available.length > 0
-      ? available.map(c => `\`!${c}\``).join(", ")
-      : "_(chưa có)_";
-    await message.reply(`❌ Không tìm thấy **${name}**.\n📋 Có sẵn: ${list}`);
+      ? available.map(c => `• \`!${c}\``).join("\n")
+      : "_(chưa có nhân vật nào)_";
+    const embed = new EmbedBuilder()
+      .setColor(0xE57373)
+      .setTitle("Danh sách nhân vật")
+      .setDescription(list)
+      .setFooter({ text: "Endfield Characters" });
+    await message.reply({ embeds: [embed] });
     return;
   }
+
+  const images = getCharacterImages(name);
+  if (images.length === 0) return;
 
   const chosen = pickRandom(images);
   const ext = path.extname(chosen);
@@ -73,7 +80,7 @@ client.on("messageCreate", async (message) => {
 
   const displayName = name.charAt(0).toUpperCase() + name.slice(1);
   const embed = new EmbedBuilder()
-    .setColor(0xFF2e2e)
+    .setColor(0xF2433A)
     .setAuthor({ name: displayName, iconURL: `attachment://${fileName}` })
     .setImage(`attachment://${fileName}`)
     .setFooter({ text: "Endfield Characters" });
