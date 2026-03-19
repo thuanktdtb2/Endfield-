@@ -73,20 +73,29 @@ client.on("messageCreate", async (message) => {
   const images = getCharacterImages(name);
   if (images.length === 0) return;
 
-  const chosen = pickRandom(images);
-  const ext = path.extname(chosen);
-  const fileName = `${name}${ext}`;
-  const attachment = new AttachmentBuilder(chosen, { name: fileName });
+  const mainImage = pickRandom(images);
+  const remaining = images.filter(f => f !== mainImage);
+  const thumbImage = remaining.length > 0 ? pickRandom(remaining) : mainImage;
+
+  const mainExt = path.extname(mainImage);
+  const mainFile = `main_${name}${mainExt}`;
+  const thumbExt = path.extname(thumbImage);
+  const thumbFile = `thumb_${name}${thumbExt}`;
+
+  const attachments = [new AttachmentBuilder(mainImage, { name: mainFile })];
+  if (thumbImage !== mainImage) {
+    attachments.push(new AttachmentBuilder(thumbImage, { name: thumbFile }));
+  }
 
   const displayName = name.charAt(0).toUpperCase() + name.slice(1);
   const embed = new EmbedBuilder()
-    .setColor(0xFF4040)
+    .setColor(0xE57373)
     .setTitle(`__✦ ${displayName}__`)
-    .setThumbnail(`attachment://${fileName}`)
-    .setImage(`attachment://${fileName}`)
+    .setThumbnail(`attachment://${thumbFile}`)
+    .setImage(`attachment://${mainFile}`)
     .setFooter({ text: "Endfield Characters" });
 
-  await message.reply({ embeds: [embed], files: [attachment] });
+  await message.reply({ embeds: [embed], files: attachments });
 });
 
 const token = process.env.DISCORD_BOT_TOKEN;
